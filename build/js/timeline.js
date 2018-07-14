@@ -7187,7 +7187,7 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 			}
 			
 			slider		= new VMM.Slider($slider, config);
-			timenav		= new VMM.Timeline.TimeNav($navigation);
+			timenav		= new VMM.Timeline.TimeNav($navigation, undefined, undefined, slider);
 			
 			if (!has_width) {
 				config.width = VMM.Lib.width($timeline);
@@ -7665,7 +7665,7 @@ if(typeof VMM != 'undefined' && typeof VMM.Timeline == 'undefined') {
 
 if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefined') {
 	
-	VMM.Timeline.TimeNav = function(parent, content_width, content_height) {
+	VMM.Timeline.TimeNav = function(parent, content_width, content_height, slider) {
 		trace("VMM.Timeline.TimeNav");
 		
 		var $timenav, $content, $time, $timeintervalminor, $timeinterval, $timeintervalmajor, $timebackground, 
@@ -7675,6 +7675,7 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 			events					= {},
 			timespan				= {},
 			layout					= parent,
+			slider 					= slider,
 			data					= [],
 			era_markers				= [],
 			markers					= [],
@@ -7901,6 +7902,13 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 					config.nav.multiplier.current = config.nav.multiplier.max;
 				}
 				refreshTimeline();
+			}
+		}
+
+		function onAnnotateTimeline() {
+			if( typeof( jQuery ) != 'undefined' )
+			{
+				userAddMarkerDataPrompt();
 			}
 		}
 		
@@ -8957,7 +8965,7 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 				VMM.Lib.css($toolbar, "left", 10);
 			} else {
 				if (config.start_page) {
-					VMM.Lib.css($toolbar, "top", 27);
+					VMM.Lib.css($toolbar, "top", 14);
 				}
 				$zoomin		= VMM.appendAndGetElement($toolbar, "<div>", "zoom-in", "<div class='icon'></div>");
 				$zoomout	= VMM.appendAndGetElement($toolbar, "<div>", "zoom-out", "<div class='icon'></div>");
@@ -8965,6 +8973,8 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 				// ZOOM EVENTS
 				VMM.bindEvent($zoomin, onZoomIn, "click");
 				VMM.bindEvent($zoomout, onZoomOut, "click");
+				// ANNOTATION EVENT
+				VMM.bindEvent($annotate, onAnnotateTimeline, "click");
 				// TOOLTIP
 				VMM.Lib.attribute($zoomin, "title", VMM.master_config.language.messages.expand_timeline);
 				VMM.Lib.attribute($zoomin, "rel", "timeline-tooltip");
@@ -9094,6 +9104,135 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 				}
 			}
 		}
+		function errorDialog(errorMessage)
+		{
+			var errorDialog = $('<div id="errorPrompt" title="Error"></div>');
+			errorDialog.append('<p>' + errorMessage + '</p>');
+
+			errorDialog.dialog({
+				modal: true,
+				buttons: {
+					'OK': function () {
+					  $(this).dialog('close');
+					}
+				}
+			});
+		}
+
+		function userAddMarkerDataPrompt()
+		{
+			var dialog = $('<div id="annotationPrompt" title="New Annotation"></div>');
+			var form = $('<form></form>');
+			dialog.append(form);
+			form.append('Title: <input type="text" name="name">');
+			form.append('Date:');
+			var dateInput = $('<input type="text" name="dateInput" id="dateInput">');
+			form.append(dateInput);
+
+			dateInput.datepicker();
+
+			dialog.dialog({
+				modal: true,
+				buttons: {
+					'OK': function () {
+						var name = $('input[name="name"]').val();
+						var error = "";
+						if (name == '')
+							error = "Please enter a title";
+
+						var date = new Date($('input[name="dateInput"]').val());
+						
+						if (isNaN(date.getTime()))
+						{
+							error = "Please enter a valid date";
+						}
+
+						if (error == "")
+						{
+							userAddMarker(name, date);
+							$(this).dialog('close');
+						} 
+						else 
+						{
+							errorDialog(error);
+						}
+					},
+					'Cancel': function () {
+						$(this).dialog('close');
+					}
+				}
+			});
+		}
+
+		function userAddMarker(title, date)
+		{
+			var newData = {};
+			
+			newData.startdate = date;
+			newData.enddate = date;
+
+			newData.date = date;
+			newData.fulldate = date.getTime();
+			
+			// doesnt parse
+// 			precisiondate = {
+// 				day: true,
+// 		​		 hour: false,
+// ​​ 				  millisecond: false,
+// ​​ 				  minute: false,
+// ​​ 				  month: true,
+// ​​ 				  second: false,
+// ​​ 				  year: true
+// 			};
+
+			newData.content = "TestContent";
+			newData.headline = "TestHeadline";
+			
+			// asset seems to be something like a youtube video or tweet
+			// thumbnail seems to be created on the flag based on the media
+			// need asset? maybe an icon to denote that this is an annotation
+			newData.asset = {
+				caption: "",
+				credit: "",
+				media: "" 
+			};
+			
+			// need to understand the size argument more.. how is uniqueness guaranteed?
+			newData.uniqueid = VMM.Util.unique_ID(6);
+
+			newData.title = title;
+
+			// dont know
+			newData.needs_slug = false;
+			newData.slug = "";
+
+			// havent seen data for this
+			newData.tag = "";
+
+			data.push(newData);
+
+			data.sort(function(a, b)
+			{
+				return a.fulldate - b.fulldate
+			});
+
+			// copied this here to force fix a bug
+			for(var i = 0; i < markers.length; i++) {
+				VMM.Lib.removeClass(markers[i].marker, "active");
+			}
+
+			buildMarkers();
+			positionMarkers(false);
+			slider.setData(data);
+
+			for (i = 0; i < markers.length; i++)
+			{
+				if (markers[i].uniqueid == newData.uniqueid)
+				{
+					markers[i].flag.trigger("click");
+				}
+			}
+		}
 		
 		function buildMarkers() {
 			
@@ -9110,102 +9249,8 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 			
 			for(i = 0; i < data.length; i++) {
 				
-				var _marker,
-					_marker_flag,
-					_marker_content,
-					_marker_dot,
-					_marker_line,
-					_marker_line_event,
-					_marker_obj,
-					_marker_title		= "",
-					has_title			= false;
-				
-				
-				_marker					= VMM.appendAndGetElement($content, "<div>", "marker");
-				_marker_flag			= VMM.appendAndGetElement(_marker, "<div>", "flag");
-				_marker_content			= VMM.appendAndGetElement(_marker_flag, "<div>", "flag-content");
-				_marker_dot				= VMM.appendAndGetElement(_marker, "<div>", "dot");
-				_marker_line			= VMM.appendAndGetElement(_marker, "<div>", "line");
-				_marker_line_event		= VMM.appendAndGetElement(_marker_line, "<div>", "event-line");
-				_marker_relative_pos	= positionRelative(interval, data[i].startdate, data[i].enddate);
-				_marker_thumb			= "";
-				
-				// THUMBNAIL
-				if (data[i].asset != null && data[i].asset != "") {
-					VMM.appendElement(_marker_content, VMM.MediaElement.thumbnail(data[i].asset, 24, 24, data[i].uniqueid));
-				} else {
-					VMM.appendElement(_marker_content, "<div style='margin-right:7px;height:50px;width:2px;float:left;'></div>");
-				}
-				
-				// ADD DATE AND TITLE
-				if (data[i].title == "" || data[i].title == " " ) {
-					trace("TITLE NOTHING")
-					if (typeof data[i].slug != 'undefined' && data[i].slug != "") {
-						trace("SLUG")
-						_marker_title = VMM.Util.untagify(data[i].slug);
-						has_title = true;
-					} else {
-						var m = VMM.MediaType(data[i].asset.media);
-						if (m.type == "quote" || m.type == "unknown") {
-							_marker_title = VMM.Util.untagify(m.id);
-							has_title = true;
-						} else {
-							has_title = false;
-						}
-					}
-				} else if (data[i].title != "" || data[i].title != " ") {
-					trace(data[i].title)
-					_marker_title = VMM.Util.untagify(data[i].title);
-					has_title = true;
-				} else {
-					trace("TITLE SLUG NOT FOUND " + data[i].slug)
-				}
-				
-				if (has_title) {
-					VMM.appendElement(_marker_content, "<h3>" + _marker_title + "</h3>");
-				} else {
-					VMM.appendElement(_marker_content, "<h3>" + _marker_title + "</h3>");
-					VMM.appendElement(_marker_content, "<h3 id='marker_content_" + data[i].uniqueid + "'>" + _marker_title + "</h3>");
-				}
-				
-				// ADD ID
-				VMM.Lib.attr(_marker, "id", ( "marker_" + data[i].uniqueid).toString() );
-				
-				// MARKER CLICK
-				VMM.bindEvent(_marker_flag, onMarkerClick, "", {number: i});
-				VMM.bindEvent(_marker_flag, onMarkerHover, "mouseenter mouseleave", {number: i, elem:_marker_flag});
-				
-				_marker_obj = {
-					marker: 			_marker,
-					flag: 				_marker_flag,
-					lineevent: 			_marker_line_event,
-					type: 				"marker",
-					full:				true,
-					relative_pos:		_marker_relative_pos,
-					tag:				data[i].tag,
-					pos_left:			0
-				};
-				
-				
-				if (data[i].type == "start") {
-					trace("BUILD MARKER HAS START PAGE");
-					config.start_page = true;
-					_marker_obj.type = "start";
-				}
-				
-				if (data[i].type == "storify") {
-					_marker_obj.type = "storify";
-				}
-				
-				
-				if (data[i].tag) {
-					tags.push(data[i].tag);
-				}
-				
-				markers.push(_marker_obj);
-				
-				
-				
+				buildMarker(data[i], i);
+
 			}
 			
 			// CREATE TAGS
@@ -9218,6 +9263,7 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 			} else {
 				config.nav.rows.current = config.nav.rows.full;
 			}
+
 			for(k = 0; k < tags.length; k++) {
 				if (k < config.nav.rows.current.length) {
 					var tag_element = VMM.appendAndGetElement($timebackground, "<div>", "timenav-tag");
@@ -9242,7 +9288,106 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 
 			
 		}
-		
+
+		function buildMarker(dataItem, i)
+		{
+			var _marker,
+				_marker_flag,
+				_marker_content,
+				_marker_dot,
+				_marker_line,
+				_marker_line_event,
+				_marker_obj,
+				_marker_title		= "",
+				has_title			= false;
+				
+				
+			_marker					= VMM.appendAndGetElement($content, "<div>", "marker");
+			_marker_flag			= VMM.appendAndGetElement(_marker, "<div>", "flag");
+			_marker_content			= VMM.appendAndGetElement(_marker_flag, "<div>", "flag-content");
+			_marker_dot				= VMM.appendAndGetElement(_marker, "<div>", "dot");
+			_marker_line			= VMM.appendAndGetElement(_marker, "<div>", "line");
+			_marker_line_event		= VMM.appendAndGetElement(_marker_line, "<div>", "event-line");
+			_marker_relative_pos	= positionRelative(interval, dataItem.startdate, dataItem.enddate);
+			_marker_thumb			= "";
+			
+			// THUMBNAIL
+			if (dataItem.asset != null && dataItem.asset != "") {
+				VMM.appendElement(_marker_content, VMM.MediaElement.thumbnail(dataItem.asset, 24, 24, dataItem.uniqueid));
+			} else {
+				VMM.appendElement(_marker_content, "<div style='margin-right:7px;height:50px;width:2px;float:left;'></div>");
+			}
+			
+			// ADD DATE AND TITLE
+			if (dataItem.title == "" || dataItem.title == " " ) {
+				trace("TITLE NOTHING")
+				if (typeof dataItem.slug != 'undefined' && dataItem.slug != "") {
+					trace("SLUG")
+					_marker_title = VMM.Util.untagify(dataItem.slug);
+					has_title = true;
+				} else {
+					var m = VMM.MediaType(dataItem.asset.media);
+					if (m.type == "quote" || m.type == "unknown") {
+						_marker_title = VMM.Util.untagify(m.id);
+						has_title = true;
+					} else {
+						has_title = false;
+					}
+				}
+			} else if (dataItem.title != "" || dataItem.title != " ") {
+				trace(dataItem.title)
+				_marker_title = VMM.Util.untagify(dataItem.title);
+				has_title = true;
+			} else {
+				trace("TITLE SLUG NOT FOUND " + dataItem.slug)
+			}
+			
+			if (has_title) {
+				VMM.appendElement(_marker_content, "<h3>" + _marker_title + "</h3>");
+			} else {
+				VMM.appendElement(_marker_content, "<h3>" + _marker_title + "</h3>");
+				VMM.appendElement(_marker_content, "<h3 id='marker_content_" + dataItem.uniqueid + "'>" + _marker_title + "</h3>");
+			}
+			
+			// ADD ID
+			VMM.Lib.attr(_marker, "id", ( "marker_" + dataItem.uniqueid).toString() );
+			
+			// MARKER CLICK
+			VMM.bindEvent(_marker_flag, onMarkerClick, "", {number: i});
+			VMM.bindEvent(_marker_flag, onMarkerHover, "mouseenter mouseleave", {number: i, elem:_marker_flag});
+			
+			_marker_obj = {
+				marker: 			_marker,
+				flag: 				_marker_flag,
+				lineevent: 			_marker_line_event,
+				type: 				"marker",
+				full:				true,
+				relative_pos:		_marker_relative_pos,
+				tag:				dataItem.tag,
+				pos_left:			0,
+				uniqueid:			dataItem.uniqueid
+			};
+			
+			
+			if (dataItem.type == "start") {
+				trace("BUILD MARKER HAS START PAGE");
+				config.start_page = true;
+				_marker_obj.type = "start";
+			}
+			
+			if (dataItem.type == "storify") {
+				_marker_obj.type = "storify";
+			}
+			
+			
+			if (dataItem.tag) {
+				tags.push(dataItem.tag);
+			}
+			
+			markers.push(_marker_obj);
+				
+		}
+
 		function buildEras() {
 			var number_of_colors	= 6,
 				current_color		= 0,

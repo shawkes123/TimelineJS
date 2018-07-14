@@ -4,10 +4,13 @@
     <head>
 		<!-- jQuery -->
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<!-- jQuery -->
+		<link rel="stylesheet" href="build/js/jqueryUI/jquery-ui.min.css">
+		<script type="text/javascript" src="build/js/jqueryUI/jquery-ui.js"></script>
 		<!-- timeline CSS -->
-        <link rel="stylesheet" type="text/css" href="TimelineJS/build/css/timeline.css">
+        <link rel="stylesheet" type="text/css" href="build/css/timeline.css">
         <!-- timeline js -->
-        <script type="text/javascript" src="TimelineJS/build/js/storyjs-embed.js"></script>
+        <script type="text/javascript" src="build/js/storyjs-embed.js"></script>
 
 
 		<script>
@@ -16,14 +19,16 @@
 					type:		'timeline',
 					width:		'1800',
 					height:		'900',
-					source:		'TimelineJS/examples/example_json.json',
+					source:		'examples/example_json.json',
 					embed_id:	'my-timeline'
 				});
+
 			});
 		</script>
 		<!-- END TimelineJS -->
 	</head>
 	<body>	
 		<div id="my-timeline"></div>
+
 	</body>
 </html>

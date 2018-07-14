@@ -1519,6 +1519,7 @@
 .vco-timeline .vco-navigation .vco-toolbar .annotate-timeline .icon{
     background-image:url(timeline.png?v4.4);
     background-repeat:no-repeat;
+    background-position:-317px -210px;
     width:24px;
     height:24px
 }
