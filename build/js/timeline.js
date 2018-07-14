@@ -9149,6 +9149,7 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 
 						if (error == "")
 						{
+							dateInput.remove(); // fixes a bug where date picker doesnt work a second time
 							userAddMarker(name, date);
 							$(this).dialog('close');
 						} 
