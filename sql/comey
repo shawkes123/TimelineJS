@@ -1,0 +1,13 @@
+SELECT scraped_articles.created_at as "startDate",
+scraped_articles.title as "headline",
+media_sources.display_name as "Source", 
+scraped_articles.page_rank as "Page Rank", 
+CONCAT('<p>', scraped_articles.article_body, '</p>') as "text"
+CONCAT(media_sources.name, '.png');
+FROM scraped_articles
+LEFT OUTER JOIN scrapes ON scrapes.id = scraped_articles.scrape_id
+LEFT OUTER JOIN media_sources ON scrapes.media_source_id = media_sources.id
+WHERE title LIKE '%Comey%'
+AND page_rank < 5
+ORDER BY scraped_articles.created_at
+LIMIT 1000
