@@ -4808,6 +4808,48 @@ if(typeof VMM != 'undefined' && typeof VMM.TextElement == 'undefined') {
 }
 
 /* **********************************************
+     Begin VMM.TextElement.js
+********************************************** */
+
+/* TextElement
+================================================== */
+if(typeof VMM != 'undefined' && typeof VMM.TextElement == 'undefined') {
+	
+	VMM.TextElement = ({
+		
+		init: function() {
+			return this;
+		},
+		
+		create: function(data) {
+			return data;
+		}
+		
+	}).init();
+}
+
+/* **********************************************
+     Begin VMM.TextElement.js
+********************************************** */
+
+/* NotesElement
+================================================== */
+if(typeof VMM != 'undefined' && typeof VMM.NotesElement == 'undefined') {
+	
+	VMM.NotesElement = ({
+		
+		init: function() {
+			return this;
+		},
+		
+		create: function(data) {
+			return data;
+		}
+		
+	}).init();
+}
+
+/* **********************************************
      Begin VMM.Media.js
 ********************************************** */
 
@@ -5896,7 +5938,7 @@ if(typeof VMM != 'undefined' && typeof VMM.Slider == 'undefined') {
 if (typeof VMM.Slider != 'undefined') {
 	VMM.Slider.Slide = function(d, _parent) {
 		
-		var $media, $text, $slide, $wrap, element, c,
+		var $media, $text, $notes, $notesPanel, $slide, $wrap, element, c,
 			data		= d,
 			slide		= {},
 			element		= "",
@@ -5926,7 +5968,7 @@ if (typeof VMM.Slider != 'undefined') {
 			trace(data);
 		}
 		
-		c = {slide:"", text: "", media: "", media_element: "", layout: "content-container layout", has: { headline: false, text: false, media: false }};
+		c = {slide:"", text: "", media: "", media_element: "", layout: "content-container layout", has: { headline: false, text: false, media: false, notes: false }};
 		
 		/* PUBLIC
 		================================================== */
@@ -6036,7 +6078,8 @@ if (typeof VMM.Slider != 'undefined') {
 			loaded = false;
 			VMM.Lib.detach($text);
 			VMM.Lib.detach($media);
-			
+			VMM.Lib.detach($notes);
+			VMM.Lib.detach($notesPanel);
 		};
 		
 		var reloadLayout = function() {
@@ -6051,8 +6094,12 @@ if (typeof VMM.Slider != 'undefined') {
 						VMM.Lib.removeClass($slide, "pad-left");
 						VMM.Lib.detach($text);
 						VMM.Lib.detach($media);
+						VMM.Lib.detach($notes);
+						VMM.Lib.detach($notesPanel);
 						VMM.Lib.append($slide, $text);
 						VMM.Lib.append($slide, $media);
+						VMM.Lib.append($slide, $notes);
+						VMM.Lib.append($notes, $notes);
 						is_skinny = true;
 					} 
 				} else {
@@ -6060,8 +6107,11 @@ if (typeof VMM.Slider != 'undefined') {
 						VMM.Lib.addClass($slide, "pad-left");
 						VMM.Lib.detach($text);
 						VMM.Lib.detach($media);
+						VMM.Lib.detach($notes);
+						VMM.Lib.detach($notesPanel);
 						VMM.Lib.append($slide, $media);
 						VMM.Lib.append($slide, $text);
+						VMM.Lib.append($notes, $notes);
 						is_skinny = false;
 						
 					} 
@@ -6072,7 +6122,11 @@ if (typeof VMM.Slider != 'undefined') {
 					VMM.Lib.append($slide, $text);
 				}
 				VMM.Lib.detach($media);
+				VMM.Lib.detach($notes);
+				VMM.Lib.detach($notesPanel);
 				VMM.Lib.append($slide, $media);
+				VMM.Lib.append($slide, $notes);
+				VMM.Lib.append($notes, $notesPanel);
 			}
 		}
 		
@@ -6135,6 +6189,8 @@ if (typeof VMM.Slider != 'undefined') {
 			if (data.needs_slug) {
 				
 			}
+
+			
 			
 			/* MEDIA
 			================================================== */
@@ -6144,11 +6200,30 @@ if (typeof VMM.Slider != 'undefined') {
 					$media		= VMM.appendAndGetElement($slide, "<div>", "media", VMM.MediaElement.create(data.asset, data.uniqueid));
 				}
 			}
+
+			/* NOTES
+			================================================== */
+			// adding the note column for now regardless of whether the data has notes yet
+			if (data.type != "start") {
+				c.has.notes = true;
+				
+				addCommentImage = '<img src="build/css/AddComment.png" class="noborder" border=10 height="24" width="24" align="bottom"> Add Comment</img>';
+				
+				$notes = VMM.appendAndGetElement($slide, "<div>", "notes");
+				$addCommentImage = VMM.appendAndGetElement($notes, addCommentImage);
+				VMM.bindEvent($addCommentImage, onAddCommentClickRoot, "click");
+
+				$notesPanel = VMM.appendAndGetElement($notes, "<div>", "notesPanel");
+
+			}
+			
+			
 			
 			/* COMBINE
 			================================================== */
 			if (c.has.text)	{ c.layout		+=	"-text"		};
 			if (c.has.media){ c.layout		+=	"-media"	};
+			if (c.has.notes){ c.layout		+=	"-notes"	};
 
 			if (c.has.text)	{
 				if (timer.skinny) {
@@ -6159,6 +6234,8 @@ if (typeof VMM.Slider != 'undefined') {
 					VMM.Lib.addClass($slide, "pad-left");
 					VMM.Lib.detach($text);
 					VMM.Lib.append($slide, $text);
+					VMM.Lib.detach($notes);
+					VMM.Lib.append($slide, $notes);
 				}
 				
 			} else {
@@ -6167,6 +6244,99 @@ if (typeof VMM.Slider != 'undefined') {
 			
 			
 		};
+
+		function onAddCommentClickRoot()
+		{
+			onAddCommentClick(data);
+		}
+
+		function onAddCommentClick(parent)
+		{
+			var dialog = $('<div id="addCommentPrompt" title="New Comment"></div>');
+			var form = $('<form></form>');
+			dialog.append(form);
+			form.append('Comment: <input type="text" name="comment">');
+
+			dialog.dialog({
+				modal: true,
+				buttons: {
+					'OK': function () {
+						var comment = $('input[name="comment"]').val();
+						var error = "";
+						if (comment == '')
+							error = "Please enter a comment";
+
+						var date = new Date();
+						
+
+						if (error == "")
+						{
+							addNote(parent, "Sean", comment, date);
+							$(this).dialog('close');
+						} 
+						else 
+						{
+							// todo: add errorDialog to utility
+							//errorDialog(error);
+						}
+					},
+					'Cancel': function () {
+						$(this).dialog('close');
+					}
+				}
+			});
+		}
+
+		var addNote = function(parent, username, comment, date)
+		{
+			if (parent.notes == undefined)
+			{
+				parent.notes = [];
+			}
+
+			var newNote = {
+				username: username,
+				comment: comment,
+				date: date,
+				notes: []
+			}
+
+			parent.notes.push(newNote);
+
+			buildNotes();
+		}
+
+		var buildNotes = function()
+		{
+			$notesPanel.empty();
+
+			buildNotesRecursive(data);
+		}
+
+		var buildNotesRecursive = function(parent)
+		{
+
+			if (parent.notes == undefined) return;
+
+			for (i=0; i<parent.notes.length; i++)
+			{
+				var note = parent.notes[i];
+				makeNoteElement(note);
+				buildNotesRecursive(note);
+			}												
+
+		}
+
+		var makeNoteElement = function(note)
+		{
+			var noteDiv = 
+			'<div class="noteDiv">' + 
+			'<span class="noteName">' + note.username + '</span>' +
+			'<span class="noteDate">' + note.date + '</span>' +
+			'<div class="noteContent">' + note.comment + '</div>' +
+			'</div>'
+			$notesPanel.append(noteDiv);
+		}
 		
 	}
 	

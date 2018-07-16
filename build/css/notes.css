@@ -1,0 +1,32 @@
+.noteDiv {
+    background: #fff;
+    margin: 0 auto;
+    padding: 10px;
+    text-align: left;
+    max-width: 200px;
+    /* border-radius */
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    /* box-shadow */
+    -webkit-box-shadow: rgba(0,0,0,0.2) 0px 1px 3px;
+    -moz-box-shadow: rgba(0,0,0,0.2) 0px 10px 3px;
+    box-shadow: rgba(0,0,0,0.2) 0px 10px 3px;
+  }
+  
+  .noteName
+  {
+    font-size: 15px;
+  }
+  
+  .noteDate
+  {
+    font-size: 9px;
+    color: #666666
+  }
+  
+  .noteContent
+  {
+    padding: 5px;
+    
+  }

@@ -1,9 +1,12 @@
-SELECT scraped_articles.created_at as "startDate",
+SELECT 
+CONCAT(EXTRACT(YEAR FROM scraped_articles.created_at), ',', EXTRACT(MONTH FROM scraped_articles.created_at), ',', EXTRACT(DAY FROM scraped_articles.created_at)) as "startDate",
+CONCAT(EXTRACT(YEAR FROM scraped_articles.created_at), ',', EXTRACT(MONTH FROM scraped_articles.created_at), ',', EXTRACT(DAY FROM scraped_articles.created_at)) as "endDate",
 scraped_articles.title as "headline",
-media_sources.display_name as "Source", 
-scraped_articles.page_rank as "Page Rank", 
-CONCAT('<p>', scraped_articles.article_body, '</p>') as "text"
-CONCAT(media_sources.name, '.png');
+scraped_articles.page_rank as "page_rank", 
+CONCAT('<p>', scraped_articles.article_body, '</p>') as "text",
+CONCAT(media_sources.name, '.png') as "asset/media",
+media_sources.display_name as "asset/credit",
+'' as "asset/caption"
 FROM scraped_articles
 LEFT OUTER JOIN scrapes ON scrapes.id = scraped_articles.scrape_id
 LEFT OUTER JOIN media_sources ON scrapes.media_source_id = media_sources.id
