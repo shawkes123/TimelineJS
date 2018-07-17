@@ -6207,7 +6207,7 @@ if (typeof VMM.Slider != 'undefined') {
 			if (data.type != "start") {
 				c.has.notes = true;
 				
-				addCommentImage = '<img src="build/css/AddComment.png" class="noborder" border=10 height="24" width="24" align="bottom"> Add Comment</img>';
+				addCommentImage = '<img src="build/css/AddComment.png" class="noborder" border=10 height="24" width="24" align="middle"> Add Comment</img>';
 				
 				$notes = VMM.appendAndGetElement($slide, "<div>", "notes");
 				$addCommentImage = VMM.appendAndGetElement($notes, addCommentImage);
@@ -6255,7 +6255,8 @@ if (typeof VMM.Slider != 'undefined') {
 			var dialog = $('<div id="addCommentPrompt" title="New Comment"></div>');
 			var form = $('<form></form>');
 			dialog.append(form);
-			form.append('Comment: <input type="text" name="comment">');
+			$commentInput = $('Comment: <input type="text" name="comment">');
+			form.append($commentInput);
 
 			dialog.dialog({
 				modal: true,
@@ -6272,6 +6273,7 @@ if (typeof VMM.Slider != 'undefined') {
 						if (error == "")
 						{
 							addNote(parent, "Sean", comment, date);
+							$commentInput.remove();
 							$(this).dialog('close');
 						} 
 						else 
@@ -6281,6 +6283,7 @@ if (typeof VMM.Slider != 'undefined') {
 						}
 					},
 					'Cancel': function () {
+						$commentInput.remove();
 						$(this).dialog('close');
 					}
 				}
@@ -6310,32 +6313,43 @@ if (typeof VMM.Slider != 'undefined') {
 		{
 			$notesPanel.empty();
 
-			buildNotesRecursive(data);
+			buildNotesRecursive(data, 0);
 		}
 
-		var buildNotesRecursive = function(parent)
+		var buildNotesRecursive = function(parent, indentLevel)
 		{
-
 			if (parent.notes == undefined) return;
 
-			for (i=0; i<parent.notes.length; i++)
+			for (var i=0; i<parent.notes.length; i++)
 			{
 				var note = parent.notes[i];
-				makeNoteElement(note);
-				buildNotesRecursive(note);
+				makeNoteElement(note, indentLevel);
+				buildNotesRecursive(note, indentLevel+1);
 			}												
 
 		}
 
-		var makeNoteElement = function(note)
+		var makeNoteElement = function(note, indentLevel)
 		{
-			var noteDiv = 
+			$noteDiv = $(
 			'<div class="noteDiv">' + 
 			'<span class="noteName">' + note.username + '</span>' +
-			'<span class="noteDate">' + note.date + '</span>' +
+			'<span class="noteDate">' + note.date.toDateString() + '</span>' +
 			'<div class="noteContent">' + note.comment + '</div>' +
-			'</div>'
-			$notesPanel.append(noteDiv);
+			'</div>');
+
+			var $reply = $('<div align="right" class="noteReply"><u>Reply</u></div>');
+			$noteDiv.append($reply);
+
+
+			VMM.bindEvent($reply, function() {
+				onAddCommentClick(note);
+			}, "click");
+
+
+
+			$noteDiv.css("marginLeft", (indentLevel * 10) + "px");
+			$notesPanel.append($noteDiv);
 		}
 		
 	}

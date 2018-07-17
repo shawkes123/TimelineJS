@@ -647,7 +647,7 @@
     vertical-align:middle
 }
 .vco-slider .slider-item .content .content-container .text{
-    width:33%;
+    width:50%;
     max-width:50%;
     min-width:120px;
     display:table-cell;
@@ -691,7 +691,7 @@
     float:left
 }
 .vco-slider .slider-item .content .content-container .notes{
-    width:100%;
+    width:25%;
     max-width:50%;
     min-width:120px;
     display:table-cell;
