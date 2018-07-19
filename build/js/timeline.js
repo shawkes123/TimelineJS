@@ -6255,15 +6255,27 @@ if (typeof VMM.Slider != 'undefined') {
 			var dialog = $('<div id="addCommentPrompt" title="New Comment"></div>');
 			var form = $('<form></form>');
 			dialog.append(form);
-			$commentInput = $('Comment: <input type="text" name="comment">');
+
+
+			var $nameInput = $('<input type="text" name="name">');
+			form.append("Name:");
+			form.append($nameInput);
+
+			var $commentInput = $('<input type="text" name="comment">');
+			form.append("Comment:");
 			form.append($commentInput);
 
 			dialog.dialog({
 				modal: true,
 				buttons: {
 					'OK': function () {
+						var name = $('input[name="name"]').val();
 						var comment = $('input[name="comment"]').val();
 						var error = "";
+
+						if (name == '')
+							error = "Please enter your name";
+
 						if (comment == '')
 							error = "Please enter a comment";
 
@@ -6272,7 +6284,8 @@ if (typeof VMM.Slider != 'undefined') {
 
 						if (error == "")
 						{
-							addNote(parent, "Sean", comment, date);
+							addNote(parent, name, comment, date);
+							$nameInput.remove();
 							$commentInput.remove();
 							$(this).dialog('close');
 						} 
@@ -6283,6 +6296,7 @@ if (typeof VMM.Slider != 'undefined') {
 						}
 					},
 					'Cancel': function () {
+						$nameInput.remove();
 						$commentInput.remove();
 						$(this).dialog('close');
 					}
