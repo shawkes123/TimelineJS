@@ -627,7 +627,7 @@
 }
 .vco-slider .slider-item .content{
     display:table-cell;
-    vertical-align:middle
+    vertical-align:top
 }
 .vco-slider .slider-item .content .pad-top .text .container{
     padding-top:15px
@@ -644,12 +644,10 @@
 }
 .vco-slider .slider-item .content .content-container{
     display:table;
-    vertical-align:middle
+    vertical-align:top
 }
 .vco-slider .slider-item .content .content-container .text{
     width:50%;
-    max-width:50%;
-    min-width:120px;
     display:table-cell;
     vertical-align:middle
 }
@@ -685,15 +683,25 @@
     margin-left:7.5px;
     margin-bottom:7.5px
 }
+.flagMenuButton
+  {
+    float: right;
+    margin-right: 5px;
+    margin-top: -10px;
+    visibility: hidden;
+  }
+.marker.active .flag .flagMenuButton
+{
+    visibility: visible;
+}
+
+
 .vco-slider .slider-item .content .content-container .media{
     width:100%;
-    min-width:33%;
     float:left
 }
 .vco-slider .slider-item .content .content-container .notes{
     width:25%;
-    max-width:50%;
-    min-width:120px;
     display:table-cell;
     vertical-align:top;
     text-align: left;
@@ -1418,7 +1426,8 @@
     cursor:default
 }
 .vco-notouch .vco-navigation .timenav .content .marker.active:hover .flag .flag-content h3,.vco-notouch .vco-navigation .timenav .content .marker.active:hover .flag-small .flag-content h3{
-    color:#08c
+    /* color:#08c */
+    color:#000;
 }
 .vco-notouch .vco-navigation .timenav .content .marker.active:hover .flag .flag-content h4,.vco-notouch .vco-navigation .timenav .content .marker.active:hover .flag-small .flag-content h4{
     color:#999
@@ -1713,7 +1722,8 @@
     height:36px
 }
 .vco-timeline .vco-navigation .timenav .content .marker.active .flag .flag-content h3,.vco-timeline .vco-navigation .timenav .content .marker.active .flag-small .flag-content h3{
-    color:#08c;
+    /* color:#08c; */
+    color:#000;
     margin-top:5px
 }
 .vco-timeline .vco-navigation .timenav .content .marker.active .flag .flag-content .thumbnail,.vco-timeline .vco-navigation .timenav .content .marker.active .flag-small .flag-content .thumbnail{
@@ -1729,6 +1739,48 @@
     background-image:url(timeline.png?v4.4);
     background-repeat:no-repeat;
     background-position:0 -53px;
+    width:153px;
+    height:53px
+}
+.vco-timeline .vco-navigation .timenav .content .marker.active .flag.green{
+    background-image:url(timeline.png?v4.4);
+    background-repeat:no-repeat;
+    background-position:0 -217px;
+    width:153px;
+    height:53px
+}
+.vco-timeline .vco-navigation .timenav .content .marker.active .flag.red{
+    background-image:url(timeline.png?v4.4);
+    background-repeat:no-repeat;
+    background-position:0 -323px;
+    width:153px;
+    height:53px
+}
+.vco-timeline .vco-navigation .timenav .content .marker.active .flag.blue{
+    background-image:url(timeline.png?v4.4);
+    background-repeat:no-repeat;
+    background-position:0 -438px;
+    width:153px;
+    height:53px
+}
+.vco-timeline .vco-navigation .timenav .content .marker.active .flag.yellow{
+    background-image:url(timeline.png?v4.4);
+    background-repeat:no-repeat;
+    background-position:0 -544px;
+    width:153px;
+    height:53px
+}
+.vco-timeline .vco-navigation .timenav .content .marker.active .flag.orange{
+    background-image:url(timeline.png?v4.4);
+    background-repeat:no-repeat;
+    background-position:0 -651px;
+    width:153px;
+    height:53px
+}
+.vco-timeline .vco-navigation .timenav .content .marker.active .flag.purple{
+    background-image:url(timeline.png?v4.4);
+    background-repeat:no-repeat;
+    background-position:0 -764px;
     width:153px;
     height:53px
 }
@@ -1850,6 +1902,54 @@
     background-image:url(timeline.png?v4.4);
     background-repeat:no-repeat;
     background-position:0 0;
+    width:153px;
+    height:53px
+}
+.vco-timeline .vco-navigation .timenav .content .marker .flag.green{
+    height:56px;
+    background-image:url(timeline.png?v4.4);
+    background-repeat:no-repeat;
+    background-position:0 -164px;
+    width:153px;
+    height:53px
+}
+.vco-timeline .vco-navigation .timenav .content .marker .flag.red{
+    height:56px;
+    background-image:url(timeline.png?v4.4);
+    background-repeat:no-repeat;
+    background-position:0 -270px;
+    width:153px;
+    height:53px
+}
+.vco-timeline .vco-navigation .timenav .content .marker .flag.blue{
+    height:56px;
+    background-image:url(timeline.png?v4.4);
+    background-repeat:no-repeat;
+    background-position:0 -385px;
+    width:153px;
+    height:53px
+}
+.vco-timeline .vco-navigation .timenav .content .marker .flag.yellow{
+    height:56px;
+    background-image:url(timeline.png?v4.4);
+    background-repeat:no-repeat;
+    background-position:0 -491px;
+    width:153px;
+    height:53px
+}
+.vco-timeline .vco-navigation .timenav .content .marker .flag.orange{
+    height:56px;
+    background-image:url(timeline.png?v4.4);
+    background-repeat:no-repeat;
+    background-position:0 -598px;
+    width:153px;
+    height:53px
+}
+.vco-timeline .vco-navigation .timenav .content .marker .flag.purple{
+    height:56px;
+    background-image:url(timeline.png?v4.4);
+    background-repeat:no-repeat;
+    background-position:0 -764px;
     width:153px;
     height:53px
 }

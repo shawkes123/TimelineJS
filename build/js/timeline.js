@@ -9358,6 +9358,8 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 
 			newData.date = date;
 			newData.fulldate = date.getTime();
+
+			newData.color = "green";
 			
 			// doesnt parse
 // 			precisiondate = {
@@ -9483,6 +9485,8 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 				_marker_line,
 				_marker_line_event,
 				_marker_obj,
+				$colorDialog,
+				changeColorMarker,
 				_marker_title		= "",
 				has_title			= false;
 				
@@ -9495,6 +9499,8 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 			_marker_line_event		= VMM.appendAndGetElement(_marker_line, "<div>", "event-line");
 			_marker_relative_pos	= positionRelative(interval, dataItem.startdate, dataItem.enddate);
 			_marker_thumb			= "";
+
+			
 			
 			// THUMBNAIL
 			if (dataItem.asset != null && dataItem.asset != "") {
@@ -9533,6 +9539,15 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 				VMM.appendElement(_marker_content, "<h3>" + _marker_title + "</h3>");
 				VMM.appendElement(_marker_content, "<h3 id='marker_content_" + dataItem.uniqueid + "'>" + _marker_title + "</h3>");
 			}
+
+			$menuArrow = $('<div class="flagMenuButton"><img src="build/css/downMenuArrow.png"></img></div>');
+
+			VMM.appendElement(_marker_flag, $menuArrow);
+
+			if (dataItem.color != "undefined")
+				$(_marker_flag).addClass(dataItem.color);
+
+			addColorPicker($menuArrow);
 			
 			// ADD ID
 			VMM.Lib.attr(_marker, "id", ( "marker_" + dataItem.uniqueid).toString() );
@@ -9572,6 +9587,102 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 			markers.push(_marker_obj);
 				
 		}
+
+		function addColorPicker($arrowElement)
+		{
+
+			VMM.bindEvent($arrowElement, colorPickerMenuClick, "click");
+											
+			
+		}
+
+		function colorPickerMenuClick(e)
+		{
+			$colorDialog = $('<div id="colorPickerPrompt" title="Choose color:"></div>');
+
+			$colors = $('<div></div>');
+			
+			VMM.Lib.css($colors, 'max-height', '40px');
+			VMM.Lib.css($colors, 'white-space', 'nowrap');
+
+			var $green = $('<div class="greenRect"><svg width="32" height="32"><rect width="32" height="32" style="fill:rgb(155,204,160);stroke-width:0;stroke:rgb(0,0,0)" /></svg></div>');
+			VMM.Lib.css($green, 'display', 'inline-block');
+			var $red = $('<div class="redRect"><svg width="32" height="32"><rect width="32" height="32" style="fill:rgb(204,83,105);stroke-width:0;stroke:rgb(0,0,0)" /></svg></div>');
+			VMM.Lib.css($red, 'display', 'inline-block');
+			var $blue = $('<div class="blueRect"><svg width="32" height="32"><rect width="32" height="32" style="fill:rgb(67,94,204);stroke-width:0;stroke:rgb(0,0,0)" /></svg></div>');
+			VMM.Lib.css($blue, 'display', 'inline-block');
+			var $yellow = $('<div class="yellowRect"><svg width="32" height="32"><rect width="32" height="32" style="fill:rgb(204,204,102);stroke-width:0;stroke:rgb(0,0,0)" /></svg></div>');
+			VMM.Lib.css($yellow, 'display', 'inline-block');
+			var $orange = $('<div class="orangeRect"><svg width="32" height="32"><rect width="32" height="32" style="fill:rgb(204,142,18);stroke-width:0;stroke:rgb(0,0,0)" /></svg></div>');
+			VMM.Lib.css($orange, 'display', 'inline-block');
+			var $purple = $('<div class="purpleRect"><svg width="32" height="32"><rect width="32" height="32" style="fill:rgb(188,85,204);stroke-width:0;stroke:rgb(0,0,0)" /></svg></div>');
+			VMM.Lib.css($purple, 'display', 'inline-block');
+
+			VMM.bindEvent($green, onColorPick);
+			VMM.bindEvent($red, onColorPick);
+			VMM.bindEvent($blue, onColorPick);
+			VMM.bindEvent($yellow, onColorPick);
+			VMM.bindEvent($orange, onColorPick);
+			VMM.bindEvent($purple, onColorPick);
+
+			changeColorMarker = e;
+
+			VMM.appendElement($colorDialog, $colors);
+
+			VMM.appendElement($colors, $green);
+			VMM.appendElement($colors, $red);
+			VMM.appendElement($colors, $blue);
+			VMM.appendElement($colors, $yellow);
+			VMM.appendElement($colors, $orange);
+			VMM.appendElement($colors, $purple);
+
+			$colorDialog.dialog({
+				modal: true,
+				buttons: {
+					'Cancel': function () {
+						$(this).dialog('close');
+					}
+				}
+			});
+			
+
+			trace(e);
+		}
+
+		function onColorPick(color)
+		{
+			var pickedColor = "";
+
+			if ($(color.currentTarget).hasClass("greenRect"))
+				pickedColor = "green";
+			if ($(color.currentTarget).hasClass("blueRect"))
+				pickedColor = "blue";
+			if ($(color.currentTarget).hasClass("redRect"))
+				pickedColor = "red";
+			if ($(color.currentTarget).hasClass("yellowRect"))
+				pickedColor = "yellow";
+			if ($(color.currentTarget).hasClass("orangeRect"))
+				pickedColor = "orange";
+			if ($(color.currentTarget).hasClass("purpleRect"))
+				pickedColor = "purple";
+
+			if (pickedColor != "")
+			{
+				var $changeColorFlag = $(changeColorMarker.currentTarget.parentElement);
+
+				trace($changeColorFlag);
+
+				$changeColorFlag.removeClass("green red blue yellow orange purple");
+
+				$changeColorFlag.addClass(pickedColor);
+			}
+
+
+			trace(pickedColor);
+
+			$colorDialog.dialog('close');
+		}
+
 
 		function buildEras() {
 			var number_of_colors	= 6,
@@ -9624,6 +9735,8 @@ if(typeof VMM.Timeline != 'undefined' && typeof VMM.Timeline.TimeNav == 'undefin
 	};
 	
 }
+
+
 
 
 /* **********************************************
