@@ -5461,7 +5461,7 @@ if(typeof VMM != 'undefined' && typeof VMM.Slider == 'undefined') {
 			slides = [];
 			
 			for(i = 0; i < d.length; i++) {
-				var _slide = new VMM.Slider.Slide(d[i], $slides_items);
+				var _slide = new VMM.Slider.Slide(d[i], $slides_items, goToSlide, upDate);
 				//_slide.show();
 				slides.push(_slide);
 			}
@@ -5936,7 +5936,7 @@ if(typeof VMM != 'undefined' && typeof VMM.Slider == 'undefined') {
 ================================================== */
 
 if (typeof VMM.Slider != 'undefined') {
-	VMM.Slider.Slide = function(d, _parent) {
+	VMM.Slider.Slide = function(d, _parent, goToSlide, upDate) {
 		
 		var $media, $text, $notes, $notesPanel, $slide, $wrap, element, c,
 			data		= d,
@@ -6099,7 +6099,7 @@ if (typeof VMM.Slider != 'undefined') {
 						VMM.Lib.append($slide, $text);
 						VMM.Lib.append($slide, $media);
 						VMM.Lib.append($slide, $notes);
-						VMM.Lib.append($notes, $notes);
+						VMM.Lib.append($notesPanel, $notes);
 						is_skinny = true;
 					} 
 				} else {
@@ -6111,7 +6111,7 @@ if (typeof VMM.Slider != 'undefined') {
 						VMM.Lib.detach($notesPanel);
 						VMM.Lib.append($slide, $media);
 						VMM.Lib.append($slide, $text);
-						VMM.Lib.append($notes, $notes);
+						VMM.Lib.append($notesPanel, $notes);
 						is_skinny = false;
 						
 					} 
@@ -6126,7 +6126,7 @@ if (typeof VMM.Slider != 'undefined') {
 				VMM.Lib.detach($notesPanel);
 				VMM.Lib.append($slide, $media);
 				VMM.Lib.append($slide, $notes);
-				VMM.Lib.append($notes, $notesPanel);
+				VMM.Lib.append($notesPanel, $notes);
 			}
 		}
 		
@@ -6167,6 +6167,13 @@ if (typeof VMM.Slider != 'undefined') {
 				} else { 
 					c.text		+=	VMM.createElement("h3", VMM.Util.linkify_with_twitter(data.headline, "_blank"));
 				}
+			}
+
+			if (data.type == "start")
+			{
+				c.text		+=	VMM.createElement("div", "<u>The firing of James Comey</u>", "comey");
+				c.text		+=	VMM.createElement("div", "<u>Hurricane Maria</u>", "maria");
+				c.text		+=	VMM.createElement("div", "<u>Net Neutrality</u>", "neutrality");
 			}
 			
 			/* TEXT
@@ -6241,9 +6248,30 @@ if (typeof VMM.Slider != 'undefined') {
 			} else {
 				VMM.Lib.addClass($slide, c.layout);
 			}
+
+			VMM.bindEvent($(".comey"), comeyClick, "click");
+			VMM.bindEvent($(".maria"), mariaClick, "click");
+			VMM.bindEvent($(".neutrality"), neutralClick, "click");
+			
 			
 			
 		};
+
+		function comeyClick()
+		{
+			goToSlide(1);
+			upDate();
+		}
+		function mariaClick()
+		{
+			goToSlide(48);
+			upDate();
+		}
+		function neutralClick()
+		{
+			goToSlide(84);
+			upDate();
+		}
 
 		function onAddCommentClickRoot()
 		{
